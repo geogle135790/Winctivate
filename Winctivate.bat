@@ -1,10 +1,19 @@
 @echo off
 TITLE = Winctivate
 setlocal enableDelayedExpansion
+
+%nul% reg query HKU\S-1-5-19 || (
+if not defined _elev %nul% %psc% "start cmd.exe -arg '/c \"!_PSarg:'=''!\"' -verb runas" && exit /b
+%nceline%
+echo This script require administrator privileges.
+echo To do so, right click on this script and select 'Run as administrator'.
+goto adminfailed
+)
+
 :main
 cls
 echo  Welcome to Winctivate
-echo       Main Menu
+echo       Main Menu 
 echo  1)Activate Windows
 echo  2)Activate Office
 echo  3)Credits
@@ -53,16 +62,18 @@ endlocal
 
 :2
 cls
-set "commands= 2016 2019 2022 "
+::set "commands= 2016 2019 2022 "
 echo Office not suported now
 echo sorry:(
+goto main
 
 :3
+cls
 Echo ##############################
 echo #         Winctivate         #
 echo ##############################
 echo #          Website:          #
-echo #       Winctivate.ml        #
+echo #       Winctivate.net       #
 echo ##############################
 
 
@@ -74,10 +85,32 @@ exit /b
 :WIN10ACTIV
 cls
 echo Your Windows is 10 or 11
-::slmgr/ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
+echo Adding Key
+W269N-WFGWX-YVC9B-4J6C9-T83GX
+echo  Adding Kms Server
 ::slmgr /skms kms.digiboy.ir
+echo Trying to activate Windows via KMS server
 ::slmgr /ato
-wmic path SoftwareLicensingProduct get licensestatus | 1>nul findstr "1" && goto activated || goto winfail
+echo Waiting 5 second
+ping 127.0.0.1 -n 5 > nul
+wmic path SoftwareLicensingProduct get licensestatus | 1>nul findstr "1" && goto activated || goto win10fail
+
+:win10fail
+echo Activation Failed(or not?)
+echo Trying another key
+::slmgr/ipk 8DVY4-NV2MW-3CGTG-XCBDB-2PQFM
+echo Trying to activate Windows via KMS server
+::slmgr /ato
+echo Waiting 5 second
+ping 127.0.0.1 -n 5 > nul
+wmic path SoftwareLicensingProduct get licensestatus | 1>nul findstr "1" && goto activated || echo Activation Failed
+echo Trying another KMS server
+::slmgr /skms kms.loli.best
+::slmgr /ato
+echo Waiting 5 second
+ping 127.0.0.1 -n 5 > nul
+wmic path SoftwareLicensingProduct get licensestatus | 1>nul findstr "1" && goto activated || echo Activation Failed
+
 
 :winfail
 echo Activation Failed
@@ -99,3 +132,13 @@ echo Your Windows not Suported(Vista or lower)
 echo Sorry:(
 ping 127.0.0.1 -n 2 > nul
 goto main
+
+:AdminFailed
+cls
+echo ==== ERROR ====
+echo.
+echo This script require administrator privileges.
+echo To do so, right click on this script and select 'Run as administrator'.
+echo.
+echo Press any key to exit . . .
+pause>nul
